@@ -1,6 +1,7 @@
 package cn.zzuzl.structrue;
 
 import cn.zzuzl.Base;
+import cn.zzuzl.base.Node;
 import cn.zzuzl.base.TreeNode;
 
 public class BinarySearchTree extends Base {
@@ -21,22 +22,25 @@ public class BinarySearchTree extends Base {
     }
 
     public void add(int val) {
+        if (root == null) {
+            root = new TreeNode(val);
+            return;
+        }
         TreeNode node = root;
         while (node != null) {
             if (node.val == val) {
-                throw new RuntimeException();
-            }
-            if (val > node.val) {
+                return;
+            } else if (val > node.val) {
                 if (node.right == null) {
                     node.right = new TreeNode(val);
-                    break;
+                    return;
                 } else {
                     node = node.right;
                 }
             } else {
                 if (node.left == null) {
                     node.left = new TreeNode(val);
-                    break;
+                    return;
                 } else {
                     node = node.left;
                 }
@@ -57,44 +61,55 @@ public class BinarySearchTree extends Base {
             }
         }
 
-        if (node == null || parent == null) {
+        if (node == null) {
             return;
         }
 
-        if (node.left == null && node.right == null) {
-            parent.left = null;
-        } else if (node.left == null) {
-            parent.left = node.right;
-        } else if (node.right == null) {
-            parent.right = node.left;
-        } else {
-            TreeNode minP = node.right;
-            TreeNode minPP = node;
-            while (minP.left != null) {
-                minPP = minP;
-                minP = minP.left;
+        // 要删除的节点有两个子节点
+        if (node.left != null && node.right != null) {
+            // 查找右子树的最小节点
+            TreeNode min = node.right;
+            TreeNode minP = node;
+            while (min.left != null) {
+                minP = min;
+                min = min.left;
             }
-            node.val = minP.val;
-            minPP.left = null;
+            node.val = min.val;
+            node = min;
+            parent = minP;
+        }
+
+        // 删除节点是叶子节点或只有一个子节点
+        TreeNode child = null;
+        if (node.left == null) {
+            child = node.right;
+        } else if (node.right == null) {
+            child = node.left;
+        }
+
+        // 要删除的是根节点
+        if (parent == null) {
+            root = child;
+        } else if (parent.left == node) { // 只有一个节点或叶子结点
+            parent.left = child;
+        } else {  // 只有一个节点或叶子结点
+            parent.right = child;
         }
     }
 
     public TreeNode search(int val) {
-        return searchCore(root, val);
-    }
+        TreeNode p = root;
+        while (p != null) {
+            if (p.val == val) {
+                return p;
+            } else if (p.val < val) {
+                p = p.right;
+            } else {
+                p = p.left;
+            }
+        }
 
-    private TreeNode searchCore(TreeNode node, int val) {
-        if (node == null) {
-            return null;
-        }
-        if (node.val == val) {
-            return node;
-        }
-        if (val > node.val) {
-            return searchCore(node.right, val);
-        } else {
-            return searchCore(node.left, val);
-        }
+        return null;
     }
 
     public void prePrint() {

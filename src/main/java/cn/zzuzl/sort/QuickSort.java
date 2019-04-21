@@ -38,5 +38,4 @@ public class QuickSort extends Base {
         a[high] = temp;
         return index;
     }
-
 }
